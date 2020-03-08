@@ -1,4 +1,5 @@
 import requests
+import json
 
 class ATSalarm:
     def __init__(self, alarmIP, alarmPort, alarmCode, alarmPin):
@@ -13,7 +14,7 @@ class ATSalarm:
         #making initial data dict
         self.data={'alarmIP':self.alarmIP,'alarmPort':self.alarmPort,'alarmCode':self.alarmCode,'alarmPin':self.alarmPin,'task':''}
 
-        self.startScan()
+        self.status()
 
 
 
@@ -32,17 +33,20 @@ class ATSalarm:
 
     def status(self):
         # start connection
-        print("kaas")
-        #self.startScan()
+        self.startScan()
 
         # set task
         task = 'status'
         self.data['task'] = task
 
         # keep reconnecting till all data is retrieved
-        if self.lastMessage['reconnect']:
+        while "\"reconnect\":true" in self.lastMessage:
+            print(self.lastMessage[0])
             r = requests.post(self.server, data=self.data, verify=False, cookies=self.koekjes)
             print(r.text)
+            self.lastMessage = r.text
+
+            # Speeltuin om er een leesbare dict van te maken
 
     def arm(self):
         pass
