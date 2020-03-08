@@ -11,6 +11,7 @@ class ATSalarm:
         self.alarmPin = alarmPin
         self.server = 'https://security.syca.nl/'
         self.lastMessage = {}
+        self.zoneStates = {}
 
         #making initial data dict
         self.data={'alarmIP':self.alarmIP,'alarmPort':self.alarmPort,'alarmCode':self.alarmCode,'alarmPin':self.alarmPin,'task':''}
@@ -49,8 +50,15 @@ class ATSalarm:
                     for message in self.lastMessage["messages"]:
                         if message["type"] == "data":
                             if message["status"] == "areaButtons":
-                                print(message["code"])
-                                print(base64.standard_b64decode(message["code"]))
+                                self.zoneStates = json.loads(base64.standard_b64decode(message["code"]))
+                                print(self.zoneStates)
+                                print("amount of zones: " + str(len(self.zoneStates)))
+                                for zone in self.zoneStates:
+                                    if zone["status"] == 1:
+                                        print(zone["name"] + " not armed")
+                                    else:
+                                        print(zone["name"] + " armed")
+
             else:
                 break
 
