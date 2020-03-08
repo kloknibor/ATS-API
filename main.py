@@ -16,24 +16,32 @@ class ATSalarm:
         #making initial data dict
         self.data={'alarmIP':self.alarmIP,'alarmPort':self.alarmPort,'alarmCode':self.alarmCode,'alarmPin':self.alarmPin,'task':''}
 
-        self.status()
+        self.Connect()
 
 
-    def startScan(self):
-        task = 'servercheck'
+    def Connect(self, task="servercheck", zone=""):
         self.data['task'] = task
 
-        #retrieve cookie and connect to server
-        r = requests.post(self.server, data=self.data, verify=False)
-        self.koekjes = r.cookies
-        self.lastMessage = json.loads(r.text)
-        print (self.lastMessage)
+        if zone == "":
+            r = requests.post(self.server, data=self.data, verify=False)
+            self.koekjes = r.cookies
+            self.lastMessage = json.loads(r.text)
+            print (self.lastMessage)
+            self.status()
+        else:
+            # localData to append area
+            localData = self.data
+            localData["area"] = zone
+
+            r = requests.post(self.server, data=localData, verify=False)
+            self.koekjes = r.cookies
+            self.lastMessage = json.loads(r.text)
+            print (self.lastMessage)
+
+
 
 
     def status(self):
-        # start connection
-        self.startScan()
-
         # set task
         task = 'status'
         self.data['task'] = task
@@ -62,13 +70,13 @@ class ATSalarm:
             else:
                 break
 
-    def arm(self):
-        pass
+    def arm(self, zone):
+        self.Connect(task="areaon", zone=zone)
 
-    def disarm(self):
-        pass
+    def disarm(self, zone):
+        self.Connect(task="areaoff", zone=zone)
 
 
 # TODO: test code thiss will become Homeassistants job later
 alarm = ATSalarm(alarmIP='123.456.789.123', alarmPort='80', alarmCode='123456789012345678901234', alarmPin='0000')
-
+alarm.disarm(zone=3)
