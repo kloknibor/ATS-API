@@ -1,0 +1,1 @@
+Communication API to arm, disarm and get status from ats alarm

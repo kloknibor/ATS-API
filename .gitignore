@@ -1,2 +1,4 @@
-
+dist
 .idea
+ATS_API.egg-info
+build and upload.bat
