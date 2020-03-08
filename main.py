@@ -1,5 +1,6 @@
 import requests
 import json
+import base64
 
 class ATSalarm:
     def __init__(self, alarmIP, alarmPort, alarmCode, alarmPin):
@@ -25,6 +26,7 @@ class ATSalarm:
         r = requests.post(self.server, data=self.data, verify=False)
         self.koekjes = r.cookies
         self.lastMessage = json.loads(r.text)
+        print (self.lastMessage)
 
 
     def status(self):
@@ -36,13 +38,19 @@ class ATSalarm:
         self.data['task'] = task
 
         # keep reconnecting till all data is retrieved
-        print(self.lastMessage)
+        #print(self.lastMessage)
         while "reconnect" in self.lastMessage:
-            if self.lastMessage:
+            if self.lastMessage["reconnect"]:
                 r = requests.post(self.server, data=self.data, verify=False, cookies=self.koekjes)
-                print(r.text)
                 self.lastMessage = json.loads(r.text)
-                print(self.lastMessage)
+                #print(self.lastMessage)
+
+                if "messages" in self.lastMessage:
+                    for message in self.lastMessage["messages"]:
+                        if message["type"] == "data":
+                            if message["status"] == "areaButtons":
+                                print(message["code"])
+                                print(base64.standard_b64decode(message["code"]))
             else:
                 break
 
