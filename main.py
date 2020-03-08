@@ -9,13 +9,12 @@ class ATSalarm:
         self.alarmCode = alarmCode
         self.alarmPin = alarmPin
         self.server = 'https://security.syca.nl/'
-        self.lastMessage = ''
+        self.lastMessage = {}
 
         #making initial data dict
         self.data={'alarmIP':self.alarmIP,'alarmPort':self.alarmPort,'alarmCode':self.alarmCode,'alarmPin':self.alarmPin,'task':''}
 
         self.status()
-
 
 
     def startScan(self):
@@ -25,11 +24,8 @@ class ATSalarm:
         #retrieve cookie and connect to server
         r = requests.post(self.server, data=self.data, verify=False)
         self.koekjes = r.cookies
-        self.lastMessage = r.text
-        print("status :")
-        print(self.lastMessage)
-        print("koekjessss:")
-        print(self.koekjes)
+        self.lastMessage = json.loads(r.text)
+
 
     def status(self):
         # start connection
@@ -40,13 +36,15 @@ class ATSalarm:
         self.data['task'] = task
 
         # keep reconnecting till all data is retrieved
-        while "\"reconnect\":true" in self.lastMessage:
-            print(self.lastMessage[0])
-            r = requests.post(self.server, data=self.data, verify=False, cookies=self.koekjes)
-            print(r.text)
-            self.lastMessage = r.text
-
-            # Speeltuin om er een leesbare dict van te maken
+        print(self.lastMessage)
+        while "reconnect" in self.lastMessage:
+            if self.lastMessage:
+                r = requests.post(self.server, data=self.data, verify=False, cookies=self.koekjes)
+                print(r.text)
+                self.lastMessage = json.loads(r.text)
+                print(self.lastMessage)
+            else:
+                break
 
     def arm(self):
         pass
